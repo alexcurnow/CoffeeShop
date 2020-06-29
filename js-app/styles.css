@@ -1,0 +1,12 @@
+.beanContainer {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.newBeanFormContainer {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    background-color: aliceblue;
+}
+
