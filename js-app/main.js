@@ -1,5 +1,7 @@
 const url = "https://localhost:5001/api/beanvariety/";
 
+/* DOM Elements */
+
 const body = document.querySelector('.main')
 const runButton = document.querySelector("#run-button");
 const beanContainer = document.querySelector(".beanContainer")
@@ -8,10 +10,7 @@ const newBeanFormContainer = document.querySelector('.newBeanFormContainer')
 const submitNewBeanBtn = document.querySelector('submitNewBean-button')
 
 
-addBeanButton.addEventListener('click', () => {
-    newBeanForm()
-    newBeanFormContainer.style.display = "block"
-})
+/* HTML Generator Functions */
 
 const newBeanForm = () => newBeanFormContainer.innerHTML = `
 <form class="newBeanForm">
@@ -45,6 +44,36 @@ const beanHtmlGenerator = (beanVarieties) => {
 
 }
 
+
+/* Event Listeners */
+
+runButton.addEventListener("click", () => {
+    getAllBeanVarieties()
+        .then(beanVarieties => {
+            beanHtmlGenerator(beanVarieties);
+        })
+});
+
+addBeanButton.addEventListener('click', () => {
+    newBeanForm()
+    newBeanFormContainer.style.display = "block"
+})
+
+body.addEventListener('click', (e) => {
+    if (e.target.classList.contains('submitNewBean-button')) {
+
+        const newBeanVarietyObj = {
+            name: document.querySelector('.beanName').value,
+            region: document.querySelector('.beanRegion').value,
+            notes: document.querySelector('.beanNotes').value
+        }
+        addNewBeanVariety(newBeanVarietyObj).then(getAllBeanVarieties).then(beanVarieties => beanHtmlGenerator(beanVarieties))
+
+        newBeanFormContainer.style.display = 'none'
+    }
+
+})
+
 body.addEventListener('click', e => {
     if (e.target.classList.contains('deleteBeanVariety-button')) {
         const id = e.target.value
@@ -55,24 +84,19 @@ body.addEventListener('click', e => {
 })
 
 
-body.addEventListener('click', e => {
-    if (e.target.classList.contains('updateBeanVariety-button')) {
-        const updatedBeanObj = {
-            id: e.target.value,
-            name: document.querySelector('.singleBeanName').innerHTML,
-            region: document.querySelector('.singleBeanRegion').innerHTML
-        }
-        updateBeanVariety(updatedBeanObj)
-    }
-})
+// body.addEventListener('click', e => {
+//     if (e.target.classList.contains('updateBeanVariety-button')) {
+//         const updatedBeanObj = {
+//             id: e.target.value,
+//             name: document.querySelector('.singleBeanName').innerHTML,
+//             region: document.querySelector('.singleBeanRegion').innerHTML
+//         }
+//         updateBeanVariety(updatedBeanObj)
+//     }
+// })
 
 
-runButton.addEventListener("click", () => {
-    getAllBeanVarieties()
-        .then(beanVarieties => {
-            beanHtmlGenerator(beanVarieties);
-        })
-});
+/* Fetch Requests */
 
 function getAllBeanVarieties() {
     return fetch(url).then(resp => resp.json());
@@ -98,18 +122,3 @@ const deleteBeanVariety = (id) => fetch(url + id, {
     method: 'DELETE'
 })
 
-
-body.addEventListener('click', (e) => {
-    if (e.target.classList.contains('submitNewBean-button')) {
-
-        const newBeanVarietyObj = {
-            name: document.querySelector('.beanName').value,
-            region: document.querySelector('.beanRegion').value,
-            notes: document.querySelector('.beanNotes').value
-        }
-        addNewBeanVariety(newBeanVarietyObj).then(getAllBeanVarieties).then(beanVarieties => beanHtmlGenerator(beanVarieties))
-
-        newBeanFormContainer.style.display = 'none'
-    }
-
-})
