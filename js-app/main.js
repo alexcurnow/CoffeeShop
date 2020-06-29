@@ -31,16 +31,17 @@ const beanHtmlGenerator = (beanVarieties) => {
 
     const beanHtml = beanVarieties.map(v => `
             <fieldset style="margin: 10px;">
-            <h3>${v.name}</h3>
-            <h4>Region: ${v.region}</h4>
-            <p>Notes: ${v.notes}</p>
+            <h3 class="singleBeanName">${v.name}</h3>
+            <h4>Region: </h4><p class="singleBeanRegion">${v.region}</P
+            <p>Notes: </p><p class="singleBeanNotes">${v.notes}</p>
             <button value=${v.id} class="deleteBeanVariety-button">Delete</button>
+            <button value=${v.id} class="updateBeanVariety-button">Update Info</button>
             </fieldset>
         `
 
     ).join('')
 
-    beanContainer.innerHTML += beanHtml
+    beanContainer.innerHTML = beanHtml
 
 }
 
@@ -48,9 +49,22 @@ body.addEventListener('click', e => {
     if (e.target.classList.contains('deleteBeanVariety-button')) {
         const id = e.target.value
         deleteBeanVariety(id)
+            .then(getAllBeanVarieties)
+            .then(beanVarieties => beanHtmlGenerator(beanVarieties))
     }
 })
 
+
+body.addEventListener('click', e => {
+    if (e.target.classList.contains('updateBeanVariety-button')) {
+        const updatedBeanObj = {
+            id: e.target.value,
+            name: document.querySelector('.singleBeanName').innerHTML,
+            region: document.querySelector('.singleBeanRegion').innerHTML
+        }
+        updateBeanVariety(updatedBeanObj)
+    }
+})
 
 
 runButton.addEventListener("click", () => {
@@ -70,7 +84,15 @@ const addNewBeanVariety = (newBeanVariety) => fetch(url, {
         "Content-Type": "application/json"
     },
     body: JSON.stringify(newBeanVariety)
-}).then(getAllBeanVarieties)
+})
+
+const updateBeanVariety = (beanVariety) => fetch(url + beanVariety.id, {
+    method: 'PUT',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(beanVariety)
+})
 
 const deleteBeanVariety = (id) => fetch(url + id, {
     method: 'DELETE'
@@ -80,14 +102,12 @@ const deleteBeanVariety = (id) => fetch(url + id, {
 body.addEventListener('click', (e) => {
     if (e.target.classList.contains('submitNewBean-button')) {
 
-        // e.target.preventDefault()
-
         const newBeanVarietyObj = {
             name: document.querySelector('.beanName').value,
             region: document.querySelector('.beanRegion').value,
             notes: document.querySelector('.beanNotes').value
         }
-        addNewBeanVariety(newBeanVarietyObj)
+        addNewBeanVariety(newBeanVarietyObj).then(getAllBeanVarieties).then(beanVarieties => beanHtmlGenerator(beanVarieties))
 
         newBeanFormContainer.style.display = 'none'
     }
